@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Inspec | Tabela</title>
+    <link rel="stylesheet" href="./css/tabela-tecnicos.css">
+    <script src="./assets/js/funcoes.js"></script>
+    <script src="../src/controllers/usuarioController.js"></script>
+
+    <script src="https://kit.fontawesome.com/dc4799c2db.js" crossorigin="anonymous"></script>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/alert.js"></script>
+</head>
+<body onload="validarSessao()">
+    <div class="dark-body-container">
+        <div class="pop-up-container">
+            <div class="close-pop-up-button">&times;</div>
+
+            <div class="pop-up">
+                <h2>Deletar conta</h2>
+
+                <form id="form_deletar" method="post" onsubmit="return deletar()" class="form-columns">
+                    <div class="form-row">
+                        <div class="form-element">
+
+                            <label for="userSelect">Selecione o usuário</label>
+
+                            <select name="userSelect" id="user_select">
+                                <option value=""></option>
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="form-element form-row">
+                        <button class="confirm-delete-button">Deletar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div id="div_aguardar" class="loading-div" style="display: none;">
+            <img src="../apiCadastro/api-projeto-site/public/assets/circle-loading.gif" id="loading-gif" style="display: none;">
+        </div>
+    </div>
+    
+    <div class="update-dark-body">
+        <div class="update-pop-up">
+            <div class="close-update-button">&times;</div>
+
+            <div class="pop-up">
+                <h2>Atualizar conta</h2>
+
+                <form id="form_atualizar" method="post" onsubmit="return atualizar()" class="form-columns">
+                    <div class="form-row">
+                        <div class="form-element">
+
+                            <label for="userSelect">Selecione o usuário</label>
+                            <select name="userSelect" id="update_user_select">
+                                <option value=""></option>
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-element">
+                            <label for="fieldSelect">Selecione o campo</label>
+                            <select name="fieldSelect" id="field_select">
+                                <option value=""></option>
+                                <option value="nome">Nome</option>
+                                <option value="email">E-mail</option>
+                                <option value="cpf">CPF</option>
+                                <option value="telefone">Telefone</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-element">
+                            <label for="newValue">Digite o novo valor</label>
+                            <input type="text" name="newValue" id="new_value" placeholder="">
+                        </div>
+                    </div>
+
+                    <div class="form-element form-row">
+                        <button class="confirm-update-button">Atualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div id="div_aguardar" class="loading-div" style="display: none;">
+            <img src="../apiCadastro/api-projeto-site/public/assets/circle-loading.gif" id="loading-gif" style="display: none;">
+        </div>
+    </div>
+
+    <div class="sidebar-menu-container">
+        <div class="sidebar-menu">
+            <div class="user-container">
+                <div class="user-icon"></div>
+
+                <span class="username" id="hospitalName"></span>
+            </div>
+
+            <div class="items-container">
+                <ul>
+                    <li>
+                        <a href="cadastro-tecnicos.html">Cadastrar técnicos</a>
+                    </li>
+                    
+                    <li>
+                        <a href="tabela-tecnicos.html" class="current">Técnicos cadastrados</a>
+                    </li>
+                    
+                    <li>
+                        <a href="perfil-hospital.html">Perfil</a>
+                    </li>
+                    
+                    <li>
+                        <a href="index.html">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <!-- <div class="open-slide">
+            <a href="#" id="sidebar-open-button">
+                <svg width="30" height="30">
+                    <path d="M0, 5 30,5" stroke="black" stroke-width="5"/>
+                    <path d="M0, 14 30,14" stroke="black" stroke-width="5"/>
+                    <path d="M0, 23 30,23" stroke="black" stroke-width="5"/>
+                </svg>
+            </a>
+        </div> -->
+
+        <span>
+            Consulte os técnicos que foram cadastrados e altere os cadastros feitos.
+        </span>
+
+        <div class="table-container">
+            <div class="options-container">
+                <div class="options">
+                    <span class="update-button">
+                        <i class="fa-solid fa-arrows-rotate update-icon"></i>
+                    </span>
+    
+                    <span class="delete-button">
+                        <i class="fa-solid fa-trash-can trash-icon"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="table-scroll">
+                <table class="fixed-tr">
+
+                    <tr>
+                        <th>ID</th>
+                        
+                        <th>Nome</th>
+                        
+                        <th>E-mail</th>
+                        
+                        <th>CPF</th>
+                        
+                        <th>Telefone</th>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    fetch(`/usuarios/listarTecnicos/${sessionStorage.ID_HOSPITAL}`).then(function(resposta) {
+        if (resposta.ok) {
+            resposta.json().then(function(resposta) {
+                let tableContainer = document.querySelector(".table-scroll");
+                let userSelect = document.querySelector(".form-element select");
+                let updateUserSelect = document.querySelector("#update_user_select");
+
+                // tableContainer.innerHTML = "";
+
+                for (let i = 0; i < resposta.length; i++) {
+                    let tecnico = resposta[i];
+
+                    let table = document.createElement("table");
+                    let elements = document.createElement("tr");
+                    
+                    let id = document.createElement("td");
+                    let nome = document.createElement("td");
+                    let email = document.createElement("td");
+                    let cpf = document.createElement("td");
+                    let telefone = document.createElement("td");
+
+                    id.textContent = tecnico.idFuncionario;
+                    nome.textContent = tecnico.nome;
+                    email.textContent = tecnico.email;
+                    cpf.textContent = tecnico.cpf;
+                    telefone.textContent = tecnico.telefone;
+
+                    elements.appendChild(id);
+                    elements.appendChild(nome);
+                    elements.appendChild(email);
+                    elements.appendChild(cpf);
+                    elements.appendChild(telefone);
+
+                    table.appendChild(elements);
+
+                    tableContainer.appendChild(table);
+
+                    let nameOption = document.createElement("option");
+                    nameOption.value = tecnico.idFuncionario;
+                    nameOption.textContent = tecnico.nome;
+
+                    userSelect.appendChild(nameOption);
+
+                    let updateName = document.createElement("option");
+                    updateName.value = tecnico.idFuncionario;
+                    updateName.textContent = tecnico.nome;
+                    
+                    updateUserSelect.appendChild(updateName);
+                }
+            })
+        } else {
+            throw(`Houve um erro! ${resposta.status} - ${resposta}`);
+        }
+    }).catch(function(resposta) {
+        console.log(resposta);
+    })
+</script>
+
+<script>
+    const darkBodyContainer = document.querySelector(".dark-body-container");
+    const popUpContainer = document.querySelector(".pop-up-container");
+    const deleteButton = document.querySelector(".delete-button");
+    const closeDeleteButton = document.querySelector(".close-pop-up-button");
+
+    deleteButton.addEventListener("click", () => {
+        darkBodyContainer.classList.add("active-dark-body-container");
+        popUpContainer.classList.add("active");
+    });
+
+    closeDeleteButton.addEventListener("click", () => {
+        document.getElementById("user_select").value = "";
+        darkBodyContainer.classList.remove("active-dark-body-container");
+        popUpContainer.classList.remove("active");
+    });
+
+    const updateDarkBody = document.querySelector(".update-dark-body");
+    const updatePopUp = document.querySelector(".update-pop-up");
+    const updateButton = document.querySelector(".update-button");
+    const closeUpdateButton = document.querySelector(".close-update-button");
+
+    updateButton.addEventListener("click", () => {
+        updateDarkBody.classList.add("active-update-dark-body");
+        updatePopUp.classList.add("active");
+    });
+
+    closeUpdateButton.addEventListener("click", () => {
+        document.getElementById("update_user_select").value = "";
+        document.getElementById("field_select").value = "";
+        document.getElementById("new_value").value = "";
+        updateDarkBody.classList.remove("active-update-dark-body");
+        updatePopUp.classList.remove("active");
+    });
+</script>
+
+<script>
+    // function testar(sel) {
+    //     throwAlert("info", `O id do ${sel.options[sel.selectedIndex].text} é ${sel.value}`);
+    // }
+    function deletar() {
+        aguardar();
+
+        let formulario = new URLSearchParams(new FormData(document.getElementById("form_deletar")));
+
+        let select = document.getElementById("user_select");
+
+        if (select.value == "") {
+            throwAlert("error", "Selecione um usuário!");
+
+            return false;
+        }
+
+        fetch(`/usuarios/deletarTecnico/${user_select.value}`, {
+            method: "POST",
+            body: formulario
+        }).then(function(resposta) {
+            if (resposta.ok) {
+                throwAlert("success", "Conta deletada com sucesso!");
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+
+                limparFormulario();
+
+                finalizarAguardar();
+            } else {
+                console.log(resposta);
+
+                throw("Houve um erro ao tentar realizar o cadastro!");
+            }
+        }).catch(function(resposta) {
+            console.log(`#ERRO: ${resposta}`);
+
+            finalizarAguardar();
+        });
+
+        return false;
+    }
+
+    function atualizar() {
+        aguardar();
+
+        const formulario = new URLSearchParams(new FormData(document.getElementById("form_atualizar")));
+
+        const userSelect= document.getElementById("update_user_select");
+        const fieldSelect = document.getElementById("field_select");
+        const newValue = document.getElementById("new_value");
+
+        if (userSelect.value == "") {
+            throwAlert("error", "Selecione um usuário!");
+
+            return false;
+        }
+        if (fieldSelect.value == "") {
+            throwAlert("error", "Selecione um campo para ser atualizado!");
+
+            return false;
+        } 
+        if (newValue.value == "") {
+            throwAlert("error", "Digite o novo valor!");
+
+            return false;
+        }
+
+        const isEmailSelected = fieldSelect.value == "email";
+        const isCpfSelected = fieldSelect.value == "cpf";
+        const isPhoneSelected = fieldSelect.value == "telefone";
+
+        if (isEmailSelected) {
+            if (newValue.value.indexOf("@") == -1 || newValue.value.indexOf(".com") == -1) {
+                throwAlert("error", "Novo e-mail deve conter @ e .com!");
+                
+                return false;
+            }
+        } else if (isCpfSelected) {
+            if (newValue.value.length != 11) {
+                throwAlert("error", "Digite um CPF válido (11 dígitos)!");
+
+                return false;
+            }
+        } else if (isPhoneSelected) {
+            if (newValue.value.length != 11) {
+                throwAlert("error", "Digite um número de telefone válido (11 dígitos)!");
+
+                return false;
+            }
+        }
+
+        fetch(`/usuarios/atualizarTecnico/${userSelect.value}`, {
+            method: "POST",
+            body: formulario
+        }).then(function(resposta) {
+            if (resposta.ok) {
+                throwAlert("success", "Conta atualizada com sucesso!");
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+
+                limparFormulario();
+
+                finalizarAguardar();
+            } else {
+                console.log(resposta);
+
+                throw("Houve um erro ao tentar realizar o cadastro!");
+            }
+        }).catch(function(resposta) {
+            console.log(`#ERRO: ${resposta}`);
+
+            finalizarAguardar();
+        });
+
+        return false;
+    }
+</script>

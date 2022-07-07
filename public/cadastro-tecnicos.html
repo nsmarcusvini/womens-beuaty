@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="./css/cadastro-tecnicos.css">
+
+    <script src="https://kit.fontawesome.com/dc4799c2db.js" crossorigin="anonymous"></script>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="assets/js/funcoes.js"></script>
+    <script src="assets/js/alert.js"></script>
+</head>
+<body onload="validarSessao()">
+    <div class="sidebar-menu-container">
+        <div class="sidebar-menu">
+            <div class="user-container">
+                <div class="user-icon"></div>
+
+                <span class="username" id="hospitalName"></span>
+            </div>
+
+            <div class="items-container">
+                <ul>
+                    <li>
+                        <a href="cadastro-tecnicos.html" class="current">Cadastrar técnicos</a>
+                    </li>
+                    
+                    <li>
+                        <a href="tabela-tecnicos.html">Técnicos cadastrados</a>
+                    </li>
+                    
+                    <li>
+                        <a href="perfil-hospital.html">Perfil</a>
+                    </li>
+                    
+                    <li>
+                        <a href="index.html">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <!-- <div class="open-slide">
+            <a href="#" id="sidebar-open-button">
+                <svg width="30" height="30">
+                    <path d="M0, 5 30,5" stroke="black" stroke-width="5"/>
+                    <path d="M0, 14 30,14" stroke="black" stroke-width="5"/>
+                    <path d="M0, 23 30,23" stroke="black" stroke-width="5"/>
+                </svg>
+            </a>
+        </div> -->
+
+        <span>
+            Cadastre os técnicos que serão responsáveis pelas máquinas monitoradas
+        </span>
+
+        <div class="form-container">
+            <div class="form">
+                <h2>Cadastro</h2>
+
+                <form id="form-cadastro-tecnico" method="post" onsubmit="return cadastrarTecnico()" class="form-columns">
+                    <div class="form-row">
+                        <div class="form-element">
+                            <label for="name">Nome</label>
+                            <input type="text" name="name" id="name" placeholder="Manoel">
+                        </div>
+
+                        <div class="form-element">
+                            <label for="cpf">CPF</label>
+                            <input type="text" name="cpf" id="cpf" placeholder="54229225814">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-element">
+                            <label for="phone">Telefone</label>
+                            <input type="text" name="phone" id="phone" placeholder="11989970024">
+                        </div>
+
+                        <div class="form-element">
+                            <label for="email">E-mail</label>
+                            <input type="text" name="email" id="email" placeholder="manoel@gmail.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-element">
+                            <label for="password">Senha</label>
+                            <i id="passwd_eye" class="far fa-eye"></i>
+                            <input type="password" name="password" id="password" placeholder="********">
+                        </div>
+
+                        <div class="form-element">
+                            <label for="confirmation">Confirmação de senha</label>
+                            <input type="password" name="confirmation" id="confirmation" placeholder="********">
+                        </div>    
+                    </div>
+
+                    <div class="form-row">
+                        <button>Cadastrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="div_aguardar" class="loading-div" style="display: none;">
+            <img src="../apiCadastro/api-projeto-site/public/assets/circle-loading.gif" id="loading-gif" style="display: none;">
+        </div>
+
+        <div id="div_erros_login"></div>
+    </div>
+</body>
+</html>
+
+<script>
+    let passwdEye = document.getElementById("passwd_eye");
+
+    passwdEye.addEventListener("click", () => {
+        let password = document.getElementById("password");
+        let confirmation = document.getElementById("confirmation");
+
+        if (password.type == "password") {
+            passwdEye.classList.remove("fa-eye");
+            passwdEye.classList.add("fa-eye-slash");
+
+            password.type = "text";
+            confirmation.type = "text";
+        } else if (password.type == "text") {
+            passwdEye.classList.remove("fa-eye-slash");
+            passwdEye.classList.add("fa-eye");
+
+            password.type = "password";
+            confirmation.type = "password";
+        }
+    });
+</script>
+
+<script>
+    function cadastrarTecnico() {
+        aguardar();
+
+        let formulario = new URLSearchParams(new FormData(document.getElementById("form-cadastro-tecnico")));
+
+        let name = formulario.get("name");
+        let cpf = formulario.get("cpf");
+        let phoneNumber = formulario.get("phone")
+        let email = formulario.get("email");
+        let password = formulario.get("password");
+        let confirmation = formulario.get("confirmation");
+
+        // TODO: VERIFICAR AS VALIDAÇÕES QUE ELES ESTÃO APRENDENDO EM ALGORITMOS 
+        if (name == "" || cpf == "" || phoneNumber == "" || email == "" || password == "" || confirmation == "") {
+            
+            throwAlert("error", "Preencha todos os campos!");
+
+            if (name == "")  {
+                console.log('nome está em branco')
+            }
+            if (cpf == "" )  {
+                console.log('cpf está em branco')
+            }
+            if (phoneNumber == "" )  {
+                console.log('telefone está em branco')
+            }
+            if (email == '') {
+                console.log('email está em branco')
+            }
+            if (password == '') {
+                console.log('senha está em branco');
+            }
+            if (confirmation == '') {
+                console.log('confirmação está em branco!');
+            }
+
+            finalizarAguardar();
+            return false;
+        }
+        
+        if (email.indexOf("@") == -1 || email.indexOf(".com") == -1) {
+            throwAlert("error", "E-mail deve conter @ e .com!");
+            finalizarAguardar();
+            return false;
+        }
+
+        if (password != confirmation) {
+            throwAlert("error", "As senhas inseridas devem ser iguais!");
+            return false;
+        }
+
+        fetch(`/usuarios/cadastrarTecnico/${sessionStorage.ID_HOSPITAL}`, {
+            method: "POST",
+            body: formulario
+        }).then(function (resposta) {
+
+            console.log("resposta: ", resposta);
+
+            if (resposta.ok) {
+                throwAlert("success", "Cadastrado com sucesso!");
+
+                document.getElementById("form-cadastro-tecnico").reset();
+
+                finalizarAguardar();
+            } else {
+                if (resposta.status == 409) {
+                    throwAlert("error", "Esse e-mail já foi cadastrado!");
+                }
+                throw("Houve um erro ao tentar realizar o cadastro!");
+            }
+        }).catch(function (resposta) {
+            console.log(`#ERRO: ${resposta}`);
+            finalizarAguardar();
+        });
+
+        return false;
+    }
+</script>
