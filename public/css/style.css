@@ -1,0 +1,18 @@
+.galery {
+    width: 100vh;
+    height: 75vh;
+    background-color: #eceaea;
+    overflow: hidden;
+    margin-bottom: 2cm;
+}
+
+.galery .fotos {
+    width: 500%;
+    animation-name: animacao;
+    animation-duration: 20s;
+    animation-iteration-count: infinite;
+}
+
+.galery .fotos img {
+    width: 19.9%;
+}
