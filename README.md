@@ -1,2 +1,7 @@
 # womens-beuaty
-Site salão Women's Beauty (até o momento estático)
+static website for women's beauty salon
+
+## Frameworks
+- HTML/CSS
+- Javascript
+- Netlify (Host)
